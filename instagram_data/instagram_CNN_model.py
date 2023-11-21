@@ -14,32 +14,24 @@ import os
 import tensorflow as tf
 
 print("Step 1: Model Compilation...")
-# Define 'vocab_size' based on your data
-vocab_size = 27742  # Replace with the size of your vocabulary
-# Define 'max_len' based on your data
-max_len = 402  # Replace with the maximum length of your captions
+vocab_size = 27742  
+max_len = 402  
 
-# Define the CNN model (VGG16)
 image_input = Input(shape=(224, 224, 3))
 vgg = VGG16(input_tensor=image_input, include_top=False, weights='imagenet')
 for layer in vgg.layers: layer.trainable = False
 image_features_layer = Dense(256, activation='relu')(Flatten()(vgg.output))
 
-# Define the RNN model (LSTM)
 caption_input = Input(shape=(max_len,))
 embedding_layer = Embedding(input_dim=vocab_size, output_dim=256, mask_zero=True)(caption_input)
 lstm_layer = LSTM(units=256, return_sequences=True)(embedding_layer)
 
-# Merge the output of CNN and RNN models
 decoder_input = Add()([image_features_layer, lstm_layer])
 
-# Output layer
 output = TimeDistributed(Dense(vocab_size, activation='softmax'))(decoder_input)
 
-# Final model
 model = Model(inputs=[image_input, caption_input], outputs=output)
 
-# Compile the model
 try:
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
 except Exception as e:
@@ -102,11 +94,11 @@ sequences = []
 print("Reading CSV file...")
 with open('archive/combined_file.csv', 'r') as f:
     reader = csv.reader(f)
-    next(reader, None)  # Skip the header
+    next(reader, None)  
     for row in reader:
         try:
-            image_path = row[1]  # 2nd column
-            caption = row[2]  # 3rd column
+            image_path = row[1]  
+            caption = row[2]  
             image_paths.append(image_path)
             captions.append(caption)
         except IndexError as e:
