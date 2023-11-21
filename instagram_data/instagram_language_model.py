@@ -5,47 +5,47 @@ from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from datasets import load_dataset
 
 print("[Step 1] Connecting to SQLite database...")
-# Connect to SQLite database
+
 conn = sqlite3.connect('instagram_captions.db')
 print("  > Connected successfully to SQLite database.")
 
 print("[Step 2] Reading data from database...")
-# Query to read data
+
 query = "SELECT * FROM CaptionsTable"
-# Read data into a DataFrame
+
 df = pd.read_sql_query(query, conn)
-# Close the connection
+
 conn.close()
 print(f"  > Extracted {len(df)} rows from database.")
 
 print("[Step 3] Extracting captions from the dataset...")
-# Extract captions into a list
+
 captions = df['Captions'].tolist()
 print(f"  > Extracted {len(captions)} captions.")
 
 print("[Step 4] Initializing the tokenizer and model...")
 
-# Initialize the tokenizer and model
+
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
-# Assign the eos_token as the pad_token or add a new pad token
+
 tokenizer.pad_token = tokenizer.eos_token
 
 model = GPT2LMHeadModel.from_pretrained("gpt2")
 print("  > Tokenizer and model initialized.")
 
 print("[Step 5] Preparing and tokenizing the dataset...")
-# Prepare the dataset
+
 with open("captions_dataset.txt", "w") as f:
     f.write("\n".join(captions))
 print("  > Dataset prepared.")
 
-# Load the dataset using the 'datasets' library
+
 dataset = load_dataset('text', data_files={'train': 'captions_dataset.txt'})
 print("  > Dataset loaded.")
 
 
-# Tokenize the dataset
+
 def tokenize_function(examples):
     return tokenizer(examples['text'])
 
@@ -66,7 +66,7 @@ training_args = TrainingArguments(
 print("  > Training arguments initialized.")
 
 print("[Step 7] Initializing the Trainer...")
-# Initialize the Trainer
+
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -78,12 +78,12 @@ trainer = Trainer(
 print("  > Trainer initialized.")
 
 print("[Step 8] Fine-tuning the model...")
-# Fine-tune the model
+
 trainer.train()
 print("  > Model fine-tuned.")
 
 print("[Step 9] Saving the fine-tuned model...")
-# Save the model
+
 model.save_pretrained("fine_tuned_model")
 tokenizer.save_pretrained("fine_tuned_model")
 
