@@ -8,7 +8,7 @@ from io import BytesIO
 import os
 
 region = "eastus"
-key = "MY_KEY"
+key = "MY_KEY1234567"
 
 credentials = CognitiveServicesCredentials(key)
 client = ComputerVisionClient(
